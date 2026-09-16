@@ -1,4 +1,4 @@
-import { env } from './env'
+import { chave } from './meta-chaves'
 
 /** Decodifica e valida o signed_request que a Meta envia nos callbacks. */
 export async function parseSignedRequest(signed: string): Promise<Record<string, unknown> | null> {
@@ -6,7 +6,7 @@ export async function parseSignedRequest(signed: string): Promise<Record<string,
   if (!sigPart || !payloadPart) return null
 
   const key = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(env.igAppSecret()),
+    'raw', new TextEncoder().encode(await chave('igAppSecret')),
     { name: 'HMAC', hash: 'SHA-256' }, false, ['verify'],
   )
   const sig = b64urlToBytes(sigPart)

@@ -1,12 +1,12 @@
 import { env } from './env'
+import { chave } from './meta-chaves'
 
 /**
  * Facebook (Pagina + Messenger).
  *
- * Fica separado de ig.ts de proposito: sao dois apps diferentes na Meta, com
- * ID e segredo proprios. O Instagram usa o app "Autochat-IG" (IG_APP_ID); a
- * Pagina usa o app Meta "Autochat" (FB_APP_ID), do tipo Empresa, que exige
- * login pela configuracao de Login do Facebook para Empresas (FB_LOGIN_CONFIG_ID).
+ * Fica separado de ig.ts de proposito: sao ID e segredo diferentes dos do Instagram,
+ * mesmo quando e o mesmo app na Meta. O login da Pagina usa a configuracao
+ * de Login do Facebook para Empresas (fbLoginConfigId). Chaves: lib/meta-chaves.ts.
  */
 
 export const FB_GRAPH = 'https://graph.facebook.com/v26.0'
@@ -14,16 +14,10 @@ export const FB_GRAPH = 'https://graph.facebook.com/v26.0'
 /** Campos da Pagina que o webhook recebe. */
 export const FB_CAMPOS_WEBHOOK = 'feed,messages,messaging_postbacks'
 
-const need = (nome: string) => {
-  const v = process.env[nome]
-  if (!v) throw new Error(`Variavel de ambiente faltando: ${nome}`)
-  return v
-}
-
 export const fbEnv = {
-  appId: () => need('FB_APP_ID'),
-  appSecret: () => need('FB_APP_SECRET'),
-  loginConfigId: () => need('FB_LOGIN_CONFIG_ID'),
+  appId: () => chave('fbAppId'),
+  appSecret: () => chave('fbAppSecret'),
+  loginConfigId: () => chave('fbLoginConfigId'),
   redirectUri: () => `${env.baseUrl()}/api/oauth/facebook/callback`,
 }
 
@@ -36,11 +30,11 @@ async function graph<T>(caminho: string, init?: RequestInit): Promise<T> {
 
 // ---------- Login ----------
 
-export function fbAuthorizeUrl(state: string): string {
+export async function fbAuthorizeUrl(state: string): Promise<string> {
   const p = new URLSearchParams({
-    client_id: fbEnv.appId(),
+    client_id: await fbEnv.appId(),
     redirect_uri: fbEnv.redirectUri(),
-    config_id: fbEnv.loginConfigId(),
+    config_id: await fbEnv.loginConfigId(),
     response_type: 'code',
     override_default_response_type: 'true',
     state,
@@ -50,7 +44,7 @@ export function fbAuthorizeUrl(state: string): string {
 
 /** Codigo do login -> token de usuario curto -> token de usuario longo (60 dias). */
 export async function fbTokenDeUsuario(code: string): Promise<string> {
-  const base = { client_id: fbEnv.appId(), client_secret: fbEnv.appSecret() }
+  const base = { client_id: await fbEnv.appId(), client_secret: await fbEnv.appSecret() }
   const curto = await graph<{ access_token: string }>(
     `oauth/access_token?${new URLSearchParams({ ...base, redirect_uri: fbEnv.redirectUri(), code })}`,
   )
@@ -70,7 +64,7 @@ export async function fbTokenDeUsuario(code: string): Promise<string> {
  * Paginas concedidas em `granular_scopes`, entao ele e a fonte principal.
  */
 export async function fbPaginasConcedidas(userToken: string): Promise<string[]> {
-  const appToken = `${fbEnv.appId()}|${fbEnv.appSecret()}`
+  const appToken = `${await fbEnv.appId()}|${await fbEnv.appSecret()}`
   const dbg = await graph<{ data?: { granular_scopes?: { scope: string; target_ids?: string[] }[] } }>(
     `debug_token?${new URLSearchParams({ input_token: userToken, access_token: appToken })}`,
   )
@@ -176,7 +170,7 @@ export function fbResponderComentario(commentId: string, token: string, texto: s
 export async function fbAssinaturaValida(raw: string, header: string | null): Promise<boolean> {
   if (!header?.startsWith('sha256=')) return false
   const key = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(fbEnv.appSecret()), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+    'raw', new TextEncoder().encode(await fbEnv.appSecret()), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
   )
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(raw))
   const hex = [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('')

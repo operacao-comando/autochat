@@ -9,7 +9,7 @@
  * Fica num .ts, e nao num .sql solto, para ir junto no pacote da Vercel.
  */
 
-export const ESQUEMA_VERSAO = 1
+export const ESQUEMA_VERSAO = 2
 
 export const ESQUEMA = `
 create extension if not exists pgcrypto;
@@ -31,6 +31,19 @@ create table if not exists instalacao (
   esquema_versao  int not null,
   endereco        text,
   atualizado_em   timestamptz not null default now()
+);
+
+-- ---------- chaves do aplicativo da Meta (1 linha so) ----------
+-- Coladas pelo dono no Assistente da Meta. Instagram e Facebook tem ID e
+-- segredo diferentes, mesmo no mesmo app.
+create table if not exists meta_app (
+  id                  int primary key default 1 check (id = 1),
+  ig_app_id           text,
+  ig_app_secret       text,
+  fb_app_id           text,
+  fb_app_secret       text,
+  fb_login_config_id  text,
+  atualizado_em       timestamptz not null default now()
 );
 
 -- ---------- conta do Instagram conectada (1 linha so) ----------
@@ -182,6 +195,7 @@ create table if not exists follower_snapshots (
 -- So a chave de servico, usada apenas no servidor, enxerga as tabelas.
 alter table painel_acesso      enable row level security;
 alter table instalacao         enable row level security;
+alter table meta_app           enable row level security;
 alter table ig_account         enable row level security;
 alter table fb_page            enable row level security;
 alter table automations        enable row level security;

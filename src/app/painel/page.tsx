@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { atualizarBancoSePreciso, dadosDoAssistente } from '@/lib/instalacao/assistente'
 import Painel from './ui'
 
 export const dynamic = 'force-dynamic'
@@ -13,6 +14,8 @@ export default async function PainelPage({
   searchParams: Promise<{ erro?: string; conectado?: string; dias?: string; auto?: string; canal?: string }>
 }) {
   const sp = await searchParams
+  // Versao nova publicada: o banco se atualiza antes de ler qualquer coisa.
+  await atualizarBancoSePreciso().catch(e => console.error('atualizar banco falhou', e))
   const supa = db()
 
   const dias = PERIODOS.includes(Number(sp.dias)) ? Number(sp.dias) : 7
@@ -32,7 +35,7 @@ export default async function PainelPage({
     .limit(200)
   if (canalFiltro) filaBase = filaBase.eq('channel', canalFiltro)
 
-  const [conta, pagina, autos, fila, logs, contatos, totalContatos, metricas] = await Promise.all([
+  const [conta, pagina, autos, fila, logs, contatos, totalContatos, metricas, meta] = await Promise.all([
     supa.from('ig_account').select('*').eq('id', 1).maybeSingle(),
     // Sem o token: o painel e um componente de navegador.
     supa.from('fb_page').select('page_id, name, webhook_subscribed, connected_at').eq('id', 1).maybeSingle(),
@@ -47,6 +50,7 @@ export default async function PainelPage({
     supa.from('contacts').select('*').order('last_seen_at', { ascending: false }).limit(500),
     supa.from('contacts').select('ig_user_id', { count: 'exact', head: true }),
     supa.rpc('dashboard_metricas', { p_dias: dias, p_automation: autoFiltro, p_canal: canalFiltro }),
+    dadosDoAssistente(),
   ])
 
   const automacoes = autos.data ?? []
@@ -59,6 +63,7 @@ export default async function PainelPage({
     <Painel
       conta={conta.data}
       pagina={pagina.data}
+      meta={meta}
       automacoes={automacoes}
       fila={fila.data ?? []}
       logs={logs.data ?? []}

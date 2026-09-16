@@ -1,4 +1,5 @@
 import { env } from './env'
+import { chave } from './meta-chaves'
 
 export const IG_GRAPH = 'https://graph.instagram.com/v25.0'
 export const IG_SCOPES = [
@@ -9,9 +10,9 @@ export const IG_SCOPES = [
 
 // ---------- OAuth ----------
 
-export function authorizeUrl(state: string): string {
+export async function authorizeUrl(state: string): Promise<string> {
   const p = new URLSearchParams({
-    client_id: env.igAppId(),
+    client_id: await chave('igAppId'),
     redirect_uri: `${env.baseUrl()}/api/oauth/instagram/callback`,
     response_type: 'code',
     scope: IG_SCOPES,
@@ -22,8 +23,8 @@ export function authorizeUrl(state: string): string {
 
 export async function exchangeCode(code: string) {
   const body = new URLSearchParams({
-    client_id: env.igAppId(),
-    client_secret: env.igAppSecret(),
+    client_id: await chave('igAppId'),
+    client_secret: await chave('igAppSecret'),
     grant_type: 'authorization_code',
     redirect_uri: `${env.baseUrl()}/api/oauth/instagram/callback`,
     code,
@@ -38,7 +39,7 @@ export async function exchangeCode(code: string) {
 export async function toLongLived(shortToken: string) {
   const p = new URLSearchParams({
     grant_type: 'ig_exchange_token',
-    client_secret: env.igAppSecret(),
+    client_secret: await chave('igAppSecret'),
     access_token: shortToken,
   })
   const r = await fetch(`${IG_GRAPH}/access_token?${p}`)
@@ -206,7 +207,7 @@ export async function validSignature(rawBody: string, header: string | null): Pr
   if (!header?.startsWith('sha256=')) return false
   const expected = header.slice(7)
   const key = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(env.igAppSecret()),
+    'raw', new TextEncoder().encode(await chave('igAppSecret')),
     { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
   )
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(rawBody))

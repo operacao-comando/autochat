@@ -26,6 +26,8 @@ import {
 } from 'lucide-react'
 
 import AlternarTema from './tema'
+import AssistenteMeta from './assistente-meta'
+import type { DadosAssistente } from '@/lib/instalacao/assistente'
 import type { Step } from '@/lib/steps'
 import { lerCanais } from '@/lib/canais'
 import { MAX_SEGUNDOS, iniciarGravacao, type Gravacao } from './gravador'
@@ -122,6 +124,7 @@ const etapaVazia = (): Step => ({ text: '', links: [{ label: '', url: '' }], nex
 export default function Painel({
   conta,
   pagina,
+  meta,
   automacoes,
   fila,
   logs,
@@ -137,6 +140,7 @@ export default function Painel({
 }: {
   conta: Conta
   pagina: Pagina
+  meta: DadosAssistente
   automacoes: Auto[]
   fila: FilaItem[]
   logs: LogItem[]
@@ -245,7 +249,7 @@ export default function Painel({
                   automacoes={automacoes}
                 />
               ) : null}
-              {tela === 'config' ? <Config conta={conta} pagina={pagina} /> : null}
+              {tela === 'config' ? <Config conta={conta} pagina={pagina} meta={meta} /> : null}
             </>
           )}
         </div>
@@ -1971,7 +1975,9 @@ function Historico({
 
 // ---------------------------------------------------------------- config
 
-function Config({ conta, pagina }: { conta: Conta; pagina: Pagina }) {
+function Config({ conta, pagina, meta }: { conta: Conta; pagina: Pagina; meta: DadosAssistente }) {
+  const igPronto = Boolean(meta.igAppId && meta.temIgSegredo)
+  const fbPronto = Boolean(meta.fbAppId && meta.temFbSegredo && meta.fbLoginConfigId)
   return (
     <>
       <h1 className="text-[22px] font-bold md:text-[28px]">Configurações</h1>
@@ -1986,6 +1992,8 @@ function Config({ conta, pagina }: { conta: Conta; pagina: Pagina }) {
           <AlternarTema />
         </div>
       </div>
+
+      <AssistenteMeta dados={meta} igConectado={!!conta} fbConectado={!!pagina} />
 
       <div className={`${cartao} mt-6 p-6`}>
         <h2 className="font-semibold">Conta do Instagram</h2>
@@ -2017,6 +2025,10 @@ function Config({ conta, pagina }: { conta: Conta; pagina: Pagina }) {
               Reconectar
             </a>
           </div>
+        ) : !igPronto ? (
+          <p className="mt-2 text-sm text-[var(--ink-soft)]">
+            Primeiro cole as chaves do Instagram no Aplicativo da Meta, acima.
+          </p>
         ) : (
           <a
             href="/api/oauth/instagram"
@@ -2052,6 +2064,10 @@ function Config({ conta, pagina }: { conta: Conta; pagina: Pagina }) {
               Reconectar ou trocar de Página
             </a>
           </div>
+        ) : !fbPronto ? (
+          <p className="mt-2 text-sm text-[var(--ink-soft)]">
+            Opcional. Para responder no Messenger, cole antes as chaves do Facebook no Aplicativo da Meta, acima.
+          </p>
         ) : (
           <>
             <p className="mt-1 text-sm text-[var(--ink-soft)]">
