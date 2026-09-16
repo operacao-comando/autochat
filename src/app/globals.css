@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/* =========================================================
+   Tema do painel.
+
+   Sao tres estados, nao dois: "claro", "escuro" e "sistema".
+   - :root                              -> paleta clara completa
+   - @media (prefers-color-scheme:dark) -> so troca valores, e so quando nao
+     houver escolha explicita de claro
+   - :root[data-theme="dark"]           -> a escolha manual vence a do sistema
+
+   Nenhuma cor pode ser definida SOMENTE dentro do bloco escuro: no estado
+   "sistema" o atributo nao existe, e a tela sairia com o texto de um tema
+   sobre o fundo do outro.
+
+   A marca (verde-limao sobre verde-escuro) e a mesma nos dois temas. Cor de
+   marca que muda com o tema deixa de ser marca.
+   ========================================================= */
+
+:root {
+  --ground: #f0f2f5;          /* fundo da pagina */
+  --surface: #ffffff;         /* cartoes, menu, campos */
+  --surface-2: #f7f8fa;       /* faixas e cabecalhos de lista */
+  --ink: #1c1e21;             /* texto principal */
+  --ink-soft: #65676b;        /* texto de apoio */
+  --rule: #e4e6eb;            /* divisoria fina */
+  --rule-strong: #ccd0d5;     /* borda de campo */
+  --accent: #1877f2;          /* navegacao e selecao */
+  --accent-soft: #e7f3ff;     /* fundo do item selecionado */
+
+  --brand: #b4ff2e;           /* acao principal */
+  --brand-hover: #9ae61f;
+  --brand-ink: #0a1400;       /* texto sobre a marca */
+
+  --ok-bg: #eaf7ed;    --ok-ink: #1a7f37;    --ok-rule: #bfe3c6;
+  --erro-bg: #fdeceb;  --erro-ink: #a12522;  --erro-rule: #f5c2c0;
+  --aviso-bg: #fff4e5; --aviso-ink: #b26a00;
+
+  --sombra: 0 1px 2px rgba(0, 0, 0, .06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #14181c;
+    --surface: #1b2026;
+    --surface-2: #212830;
+    --ink: #e7ebef;
+    --ink-soft: #8b959f;
+    --rule: #262d34;
+    --rule-strong: #363f48;
+    --accent: #6aa9f5;
+    --accent-soft: #1c2836;
+
+    --brand: #b4ff2e;
+    --brand-hover: #c8ff66;
+    --brand-ink: #0a1400;
+
+    --ok-bg: #16281d;    --ok-ink: #6fd28e;    --ok-rule: #24402e;
+    --erro-bg: #2c1a19;  --erro-ink: #f0938c;  --erro-rule: #472725;
+    --aviso-bg: #2b2113; --aviso-ink: #e8b45f;
+
+    --sombra: 0 1px 2px rgba(0, 0, 0, .5);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #14181c;
+  --surface: #1b2026;
+  --surface-2: #212830;
+  --ink: #e7ebef;
+  --ink-soft: #8b959f;
+  --rule: #262d34;
+  --rule-strong: #363f48;
+  --accent: #6aa9f5;
+  --accent-soft: #1c2836;
+
+  --brand: #b4ff2e;
+  --brand-hover: #c8ff66;
+  --brand-ink: #0a1400;
+
+  --ok-bg: #16281d;    --ok-ink: #6fd28e;    --ok-rule: #24402e;
+  --erro-bg: #2c1a19;  --erro-ink: #f0938c;  --erro-rule: #472725;
+  --aviso-bg: #2b2113; --aviso-ink: #e8b45f;
+
+  --sombra: 0 1px 2px rgba(0, 0, 0, .5);
+}
+
+@theme inline {
+  --color-background: var(--ground);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Faz barra de rolagem e campos nativos acompanharem o tema. */
+html { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"]  { color-scheme: dark; }
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), system-ui, Arial, Helvetica, sans-serif;
+}
+
+/* Foco visivel sem depender de cada componente lembrar de declarar. */
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

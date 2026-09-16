@@ -1,0 +1,7 @@
+# Nada aqui e usado pelo site: sao materiais de estudo e sobras de build.
+# Sem esta lista o deploy tenta subir 300 MB de video e falha.
+aulas/
+.next/
+entrega/
+*.mp4
+*.zip
