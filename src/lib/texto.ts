@@ -2,8 +2,8 @@
  * Personalizacao do texto das etapas. Sem banco nem rede: roda tambem na
  * previa do painel.
  *
- *   {nome}     -> primeiro nome do perfil ("Talles")
- *   {usuario}  -> @ da pessoa ("@talles.villela")
+ *   {nome}     -> primeiro nome do perfil ("Maria")
+ *   {usuario}  -> @ da pessoa ("@maria.silva")
  *   **texto**  -> letras em negrito Unicode (a DM da API nao tem formatacao)
  *
  * Dado que falta nunca aparece cru: a marcacao some e a frase e ajeitada
@@ -33,7 +33,7 @@ export function personalizar(texto: string, pessoa: Pessoa): string {
 }
 
 /**
- * Primeiro nome com inicial maiuscula ("talles villela" -> "Talles").
+ * Primeiro nome com inicial maiuscula ("maria silva" -> "Maria").
  * Pega a primeira palavra feita de letras, ignorando emoji e simbolo na frente.
  * Tudo em caixa alta vira normal ("MARIA" -> "Maria"); nome misto so ganha a
  * inicial ("deAndre" -> "DeAndre"). Sem letra nenhuma, fica sem nome.
