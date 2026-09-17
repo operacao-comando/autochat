@@ -1169,7 +1169,7 @@ function Editor({
                     value={fbPostId}
                     onChange={e => setFbPostId(e.target.value)}
                     className={campo + ' mt-1.5'}
-                    placeholder="ID do post, ex.: 1040518285812181_1054917434200060. Vazio = todos"
+                    placeholder="ID do post, ex.: 17841400000000000_18000000000000000. Vazio = todos"
                   />
                 </div>
               ) : (
