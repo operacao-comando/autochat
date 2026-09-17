@@ -26,8 +26,8 @@ import {
 } from 'lucide-react'
 
 import AlternarTema from './tema'
-import AssistenteMeta from './assistente-meta'
-import type { DadosAssistente } from '@/lib/instalacao/assistente'
+import ChavesMeta from './chaves-meta'
+import type { ChavesSalvas } from '@/lib/meta-chaves'
 import type { Step } from '@/lib/steps'
 import { lerCanais } from '@/lib/canais'
 import { MAX_SEGUNDOS, iniciarGravacao, type Gravacao } from './gravador'
@@ -140,7 +140,7 @@ export default function Painel({
 }: {
   conta: Conta
   pagina: Pagina
-  meta: DadosAssistente
+  meta: ChavesSalvas
   automacoes: Auto[]
   fila: FilaItem[]
   logs: LogItem[]
@@ -1975,7 +1975,7 @@ function Historico({
 
 // ---------------------------------------------------------------- config
 
-function Config({ conta, pagina, meta }: { conta: Conta; pagina: Pagina; meta: DadosAssistente }) {
+function Config({ conta, pagina, meta }: { conta: Conta; pagina: Pagina; meta: ChavesSalvas }) {
   const igPronto = Boolean(meta.igAppId && meta.temIgSegredo)
   const fbPronto = Boolean(meta.fbAppId && meta.temFbSegredo && meta.fbLoginConfigId)
   return (
@@ -1993,7 +1993,7 @@ function Config({ conta, pagina, meta }: { conta: Conta; pagina: Pagina; meta: D
         </div>
       </div>
 
-      <AssistenteMeta dados={meta} igConectado={!!conta} fbConectado={!!pagina} />
+      <ChavesMeta chaves={meta} />
 
       <div className={`${cartao} mt-6 p-6`}>
         <h2 className="font-semibold">Conta do Instagram</h2>
@@ -2027,7 +2027,7 @@ function Config({ conta, pagina, meta }: { conta: Conta; pagina: Pagina; meta: D
           </div>
         ) : !igPronto ? (
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
-            Primeiro cole as chaves do Instagram no Aplicativo da Meta, acima.
+            Salve antes as chaves do Instagram, acima.
           </p>
         ) : (
           <a
@@ -2066,7 +2066,7 @@ function Config({ conta, pagina, meta }: { conta: Conta; pagina: Pagina; meta: D
           </div>
         ) : !fbPronto ? (
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
-            Opcional. Para responder no Messenger, cole antes as chaves do Facebook no Aplicativo da Meta, acima.
+            Opcional. Salve antes as chaves do Facebook, acima.
           </p>
         ) : (
           <>

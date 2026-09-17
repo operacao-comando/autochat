@@ -63,6 +63,26 @@ export async function chavesMeta(): Promise<ChavesMeta> {
   return chaves
 }
 
+/** O que a tela de Configuracoes pode mostrar: IDs sim, segredos nunca. */
+export type ChavesSalvas = {
+  igAppId: string | null
+  temIgSegredo: boolean
+  fbAppId: string | null
+  temFbSegredo: boolean
+  fbLoginConfigId: string | null
+}
+
+export async function chavesSalvas(): Promise<ChavesSalvas> {
+  const c = await chavesMeta()
+  return {
+    igAppId: c.igAppId,
+    temIgSegredo: Boolean(c.igAppSecret),
+    fbAppId: c.fbAppId,
+    temFbSegredo: Boolean(c.fbAppSecret),
+    fbLoginConfigId: c.fbLoginConfigId,
+  }
+}
+
 /** Pega uma chave obrigatoria ou explica o que falta. */
 export async function chave(nome: keyof ChavesMeta): Promise<string> {
   const v = (await chavesMeta())[nome]

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db, log } from '@/lib/db'
-import { segredo } from '@/lib/segredos'
+import { tokenDeVerificacao } from '@/lib/segredos'
 import { etapasDoCanal, lerCanais } from '@/lib/canais'
 import { fbAssinaturaValida, fbEhPagina, fbResponderComentario } from '@/lib/fb'
 import { keywordMatches } from '@/lib/ig'
@@ -26,7 +26,7 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
   const u = new URL(req.url)
-  const esperado = await segredo('webhook-facebook')
+  const esperado = tokenDeVerificacao('facebook')
   if (
     esperado &&
     u.searchParams.get('hub.mode') === 'subscribe' &&

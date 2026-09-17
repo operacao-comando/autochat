@@ -1,7 +1,7 @@
 /**
  * Segredos internos, sem ninguem precisar inventar e colar na Vercel.
  *
- * Cada um sai de um HMAC da chave de servico do Supabase, que a integracao
+ * Sessao e cron. Cada um sai de um HMAC da chave de servico do Supabase, que a integracao
  * da Vercel ja entrega. Sao estaveis (mesmo valor em toda requisicao) e
  * diferentes entre si. Quem nao tem a chave de servico nao consegue calcular.
  *
@@ -11,13 +11,25 @@
  * Funciona no Node e no Edge (middleware): usa so Web Crypto.
  */
 
-type Nome = 'sessao' | 'cron' | 'webhook-instagram' | 'webhook-facebook'
+type Nome = 'sessao' | 'cron'
 
 const VARIAVEL_ANTIGA: Record<Nome, string> = {
   sessao: 'SESSION_SECRET',
   cron: 'CRON_SECRET',
-  'webhook-instagram': 'IG_WEBHOOK_VERIFY_TOKEN',
-  'webhook-facebook': 'FB_WEBHOOK_VERIFY_TOKEN',
+}
+
+/**
+ * Token de verificacao do webhook, igual em toda instalacao e escrito no guia.
+ *
+ * Ele so serve para a Meta confirmar que o endereco existe, no cadastro do
+ * webhook. Nao protege nada: cada aviso que chega e conferido pela assinatura
+ * com a chave secreta do app do cliente (validSignature / fbAssinaturaValida).
+ */
+export const TOKEN_DE_VERIFICACAO = 'autochat'
+
+export function tokenDeVerificacao(canal: 'instagram' | 'facebook'): string {
+  const antigo = canal === 'instagram' ? process.env.IG_WEBHOOK_VERIFY_TOKEN : process.env.FB_WEBHOOK_VERIFY_TOKEN
+  return antigo || TOKEN_DE_VERIFICACAO
 }
 
 export function chaveDeServico(): string {

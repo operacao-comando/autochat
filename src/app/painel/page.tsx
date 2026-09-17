@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
-import { atualizarBancoSePreciso, dadosDoAssistente } from '@/lib/instalacao/assistente'
+import { atualizarBancoSePreciso } from '@/lib/instalacao/atualizar'
+import { chavesSalvas } from '@/lib/meta-chaves'
 import Painel from './ui'
 
 export const dynamic = 'force-dynamic'
@@ -50,7 +51,7 @@ export default async function PainelPage({
     supa.from('contacts').select('*').order('last_seen_at', { ascending: false }).limit(500),
     supa.from('contacts').select('ig_user_id', { count: 'exact', head: true }),
     supa.rpc('dashboard_metricas', { p_dias: dias, p_automation: autoFiltro, p_canal: canalFiltro }),
-    dadosDoAssistente(),
+    chavesSalvas(),
   ])
 
   const automacoes = autos.data ?? []

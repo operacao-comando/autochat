@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db, log } from '@/lib/db'
 import { env } from '@/lib/env'
-import { segredo } from '@/lib/segredos'
+import { tokenDeVerificacao } from '@/lib/segredos'
 import { keywordMatches, replyToComment, sendDirectMessage, usernamePorId, usuarioSegue, validSignature } from '@/lib/ig'
 import { LEMBRETE_FOLLOW_PADRAO, botoesDaEtapa, lerEtapas, lerPayload } from '@/lib/steps'
 import { rastrearBotoes } from '@/lib/tracking'
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   const token = u.searchParams.get('hub.verify_token')
   const challenge = u.searchParams.get('hub.challenge')
 
-  if (mode === 'subscribe' && token === (await segredo('webhook-instagram'))) {
+  if (mode === 'subscribe' && token === tokenDeVerificacao('instagram')) {
     return new NextResponse(challenge ?? '', { status: 200 })
   }
   return new NextResponse('forbidden', { status: 403 })
